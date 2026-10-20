@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOrder extends Document {
-  _id: string;
+  // ✅ Removed: _id: string; (Mongoose handles this automatically)
   gigId: mongoose.Types.ObjectId;
   buyerId: mongoose.Types.ObjectId;
   sellerId: mongoose.Types.ObjectId;
@@ -11,7 +11,7 @@ export interface IOrder extends Document {
   escrowTxHash?: string;     
   releaseTxHash?: string;    
   contractOrderId: number;
-  deliveryUrl?: string; // ✅ Must be here
+  deliveryUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,7 +31,7 @@ const OrderSchema: Schema = new Schema(
     escrowTxHash: { type: String },
     releaseTxHash: { type: String },
     contractOrderId: { type: Number, required: true },
-    deliveryUrl: { type: String }, // ✅ Must be here
+    deliveryUrl: { type: String }, 
   },
   { timestamps: true }
 );
