@@ -81,7 +81,7 @@ export async function POST(req: Request) {
       type: "message",
       title: "New Message",
       message: `${session.user.name || "A user"} sent you a message: "${content.substring(0, 30)}${content.length > 30 ? '...' : ''}"`,
-      link: `/dashboard`, // Takes them to their dashboard to check messages
+      link: `/dashboard/seller`, // Takes them to their dashboard to check messages
     });
 
     return NextResponse.json({ message: newMessage }, { status: 201 });
