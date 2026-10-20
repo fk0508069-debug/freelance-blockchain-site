@@ -6,7 +6,6 @@ import Gig from "@/models/Gig";
 // DELETE a gig
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // ✅ FIX: Await params
     const { id } = await params; 
     
     const session = await auth();
@@ -25,7 +24,6 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 // UPDATE a gig
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // ✅ FIX: Await params
     const { id } = await params; 
     
     const session = await auth();
@@ -40,7 +38,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const gig = await Gig.findOneAndUpdate(
       { _id: id, sellerId: session.user.id },
       updates,
-      { returnDocument: 'after' } // ✅ FIX: Replaces deprecated { new: true }
+      { returnDocument: 'after' } 
     );
 
     if (!gig) return NextResponse.json({ error: "Gig not found" }, { status: 404 });
@@ -49,14 +47,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 // GET a single gig by ID
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     await connectDB();
 
-    // Find the gig and populate the seller details (name, email, createdAt)
-    const gig = await Gig.findById(id).populate("sellerId", "name email createdAt").lean();
+    // ✅ FIX: Include walletAddress in the populated seller details
+    const gig = await Gig.findById(id).populate("sellerId", "name email createdAt walletAddress").lean();
 
     if (!gig) {
       return NextResponse.json({ error: "Gig not found" }, { status: 404 });

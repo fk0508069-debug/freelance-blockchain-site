@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Order from "@/models/Order";
 import Gig from "@/models/Gig";
+import Notification from "@/models/Notification"; // ✅ Imported Notification
 
 export async function POST(req: Request) {
   try {
@@ -24,7 +25,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Gig not found" }, { status: 404 });
     }
 
-    // Ensure all numbers are actual Numbers (not strings)
     const numericAmount = Number(amount);
     const numericCommission = numericAmount * 0.05;
     const numericContractOrderId = Number(contractOrderId);
@@ -37,12 +37,21 @@ export async function POST(req: Request) {
       commission: numericCommission,
       status: "Funded",
       escrowTxHash,
-      contractOrderId: numericContractOrderId, // ✅ Saved properly
+      contractOrderId: numericContractOrderId,
+    });
+
+    // ✅ TRIGGER NOTIFICATION FOR THE SELLER
+    await Notification.create({
+      userId: gig.sellerId,
+      type: "order",
+      title: "New Order Received!",
+      message: `You have a new order for "${gig.title}".`,
+      link: `/dashboard/seller`,
     });
 
     return NextResponse.json({ message: "Order created successfully", order: newOrder }, { status: 201 });
   } catch (error: any) {
-    console.error("Order Creation Error:", error); // ✅ Will print to VS Code terminal if it fails
+    console.error("Order Creation Error:", error);
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
@@ -56,9 +65,8 @@ export async function GET(req: Request) {
 
     await connectDB();
     const { searchParams } = new URL(req.url);
-    const role = searchParams.get("role"); // 'buyer' or 'seller'
+    const role = searchParams.get("role");
 
-    // If role is seller, get orders where I am the seller. Otherwise, get orders where I am the buyer.
     const query = role === "seller" ? { sellerId: session.user.id } : { buyerId: session.user.id };
     
     const orders = await Order.find(query)

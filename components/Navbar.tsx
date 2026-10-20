@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import { NotificationBell } from "@/components/NotificationBell"; // ✅ Added Import
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -40,58 +41,69 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-100 px-6 py-3.5 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <nav className="sticky top-0 z-50 border-b border-[#E4E5E7] bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
         {/* Brand & Main Links */}
         <div className="flex items-center gap-8">
           <Link
             href="/home"
-            className="text-2xl font-black text-blue-600 tracking-tight hover:opacity-90 transition"
+            className="text-xl font-semibold tracking-tight text-[#222325] transition hover:opacity-80"
           >
-            FreelanceChain
+            Freelance<span className="text-[#1DBF73]">Chain</span>
           </Link>
-          <div className="hidden md:flex items-center gap-6">
+
+          <div className="hidden items-center gap-1 md:flex">
             <Link
               href="/gigs"
-              className={`text-sm font-medium transition-colors ${
+              className={`rounded-full px-4 py-2 text-sm transition-colors ${
                 pathname === "/gigs"
-                  ? "text-blue-600 font-semibold"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-[#F7F7F7] font-semibold text-[#222325]"
+                  : "font-medium text-[#62646A] hover:bg-[#F7F7F7] hover:text-[#222325]"
               }`}
             >
               Browse Gigs
+              {pathname === "/gigs" && (
+                <span className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[#1DBF73] align-middle" />
+              )}
             </Link>
           </div>
         </div>
 
         {/* Right Navigation Controls */}
-        <div className="flex items-center gap-4">
-
+        <div className="flex items-center gap-3 sm:gap-4">
+          
+          {/* ✅ Notification Bell (Only shows if logged in) */}
+          {session && <NotificationBell />}
 
           {session ? (
-            <div className="relative pl-2 border-l border-gray-200" ref={dropdownRef}>
+            <div
+              className="relative border-l border-[#E4E5E7] pl-3"
+              ref={dropdownRef}
+            >
               {/* Account Button / Avatar */}
               <button
                 onClick={() => setDropdownOpen((prev) => !prev)}
-                className="flex items-center gap-2.5 p-1.5 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition"
+                className="flex items-center gap-2.5 rounded-full p-1.5 transition hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#1DBF73]/25"
                 aria-expanded={dropdownOpen}
+                aria-haspopup="menu"
               >
                 {session.user?.image ? (
                   <img
                     src={session.user.image}
                     alt={session.user.name || "User Avatar"}
-                    className="w-9 h-9 rounded-full object-cover border border-gray-200"
+                    className="h-9 w-9 rounded-full border border-[#E4E5E7] object-cover"
                   />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-semibold flex items-center justify-center text-xs shadow-sm">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#222325] text-xs font-semibold text-white">
                     {getInitials(session.user?.name)}
                   </div>
                 )}
-                <div className="hidden lg:flex flex-col text-left pr-1">
-                  <span className="text-sm font-semibold text-gray-800 leading-tight">
+
+                <div className="hidden flex-col pr-1 text-left lg:flex">
+                  <span className="text-sm font-semibold leading-tight text-[#222325]">
                     {session.user?.name || "Account"}
                   </span>
-                  <span className="text-xs text-gray-500 capitalize">
+                  <span className="text-xs capitalize text-[#9CA0A6]">
                     {isSellerDash
                       ? "Seller Mode"
                       : isBuyerDash
@@ -99,14 +111,16 @@ export function Navbar() {
                       : "Member"}
                   </span>
                 </div>
+
                 {/* Chevron Icon */}
                 <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                  className={`h-4 w-4 text-[#62646A] transition-transform duration-200 ${
                     dropdownOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -119,34 +133,35 @@ export function Navbar() {
 
               {/* Account Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 z-50 mt-3 w-64 overflow-hidden rounded-2xl border border-[#E4E5E7] bg-white py-1 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
                   {/* User Profile Header */}
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <div className="border-b border-[#E4E5E7] bg-[#F7F7F7] px-4 py-3">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.02em] text-[#9CA0A6]">
                       Signed in as
                     </p>
-                    <p className="text-sm font-medium text-gray-900 truncate mt-0.5">
+                    <p className="mt-0.5 truncate text-sm font-medium text-[#222325]">
                       {session.user?.email || session.user?.name}
                     </p>
                   </div>
 
                   {/* Mode / Dashboard Switches */}
                   <div className="py-2">
-                    <div className="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <div className="px-4 py-1.5 text-[12px] font-semibold uppercase tracking-[0.02em] text-[#9CA0A6]">
                       Dashboard Views
                     </div>
+
                     <Link
                       href="/dashboard/buyer"
                       onClick={() => setDropdownOpen(false)}
                       className={`flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
                         isBuyerDash
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                          ? "bg-[#E8F8EF] font-semibold text-[#1A9F60]"
+                          : "text-[#62646A] hover:bg-[#F7F7F7] hover:text-[#222325]"
                       }`}
                     >
                       <span>Buyer Dashboard</span>
                       {isBuyerDash && (
-                        <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                        <span className="h-2 w-2 rounded-full bg-[#1DBF73]" />
                       )}
                     </Link>
 
@@ -155,31 +170,32 @@ export function Navbar() {
                       onClick={() => setDropdownOpen(false)}
                       className={`flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
                         isSellerDash
-                          ? "bg-green-50 text-green-700 font-semibold"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                          ? "bg-[#E8F8EF] font-semibold text-[#1A9F60]"
+                          : "text-[#62646A] hover:bg-[#F7F7F7] hover:text-[#222325]"
                       }`}
                     >
                       <span>Seller Dashboard</span>
                       {isSellerDash && (
-                        <span className="w-2 h-2 rounded-full bg-green-600"></span>
+                        <span className="h-2 w-2 rounded-full bg-[#1DBF73]" />
                       )}
                     </Link>
                   </div>
 
-                  <div className="border-t border-gray-100 my-1"></div>
+                  <div className="my-1 border-t border-[#E4E5E7]" />
 
                   {/* Profile Link */}
                   <div className="py-1">
                     <Link
                       href="/profile"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#62646A] transition-colors hover:bg-[#F7F7F7] hover:text-[#222325]"
                     >
                       <svg
-                        className="w-4 h-4 text-gray-400"
+                        className="h-4 w-4 text-[#9CA0A6]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -192,7 +208,7 @@ export function Navbar() {
                     </Link>
                   </div>
 
-                  <div className="border-t border-gray-100 my-1"></div>
+                  <div className="my-1 border-t border-[#E4E5E7]" />
 
                   {/* Sign Out Button */}
                   <div className="py-1">
@@ -201,13 +217,14 @@ export function Navbar() {
                         setDropdownOpen(false);
                         signOut({ callbackUrl: "/" });
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium text-[#E02D2D] transition-colors hover:bg-[#E02D2D]/5"
                     >
                       <svg
-                        className="w-4 h-4 text-red-500"
+                        className="h-4 w-4 text-[#E02D2D]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -223,16 +240,16 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-3 pl-2 border-l border-gray-200">
+            <div className="flex items-center gap-2 border-l border-[#E4E5E7] pl-3">
               <Link
                 href="/login"
-                className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50 transition"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-[#222325] transition hover:bg-[#F7F7F7]"
               >
                 Log In
               </Link>
               <Link
                 href="/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-sm transition"
+                className="rounded-full bg-[#222325] px-4 py-2 text-sm font-semibold text-white transition hover:bg-black"
               >
                 Sign Up
               </Link>

@@ -2,13 +2,24 @@
 
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { injected } from "wagmi/connectors";
+import { useEffect } from "react";
 
 export function ConnectWallet() {
   const { address, isConnected } = useAccount();
-  const { connect, isPending, error } = useConnect(); // Destructure the error
+  const { connect, isPending, error } = useConnect();
   const { disconnect } = useDisconnect();
 
-  // Add a small UI to display connection errors
+  // ✅ Automatically save the connected wallet address to the user's profile
+  useEffect(() => {
+    if (isConnected && address) {
+      fetch("/api/user/wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletAddress: address }),
+      }).catch((err) => console.error("Failed to save wallet:", err));
+    }
+  }, [isConnected, address]);
+
   if (error) {
     console.error("Connection error:", error.message);
   }
